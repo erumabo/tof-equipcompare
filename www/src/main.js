@@ -10,39 +10,33 @@ Alpine.store('equipo', {
 
 
 function processStat(stat) {
+  console.log(stat);
   let attr, type, value;
-  stat = stat.toUpperCase().replaceAll(" ",'');
-  if(stat.includes('%')) {
-    type = '%'
-  } else {
-    type = '+'
-  }
+  attr = stat.replaceAll(" ",'');
   
-  [attr, value] = stat.split(type);
-  value = parseFloat(value.replaceAll('.','').replace(',', '.'));
-  console.log(attr, type, value);
+  if(stat.includes('%')) type = '%';
+  else type = '+';
   
-  if(attr.includes("PS")) {
-    attr = "PS"
-  } else if(stat.includes("ATAQUE")) {
-    
-  }
+  [, value] = attr.split('+');
+  [stat] = stat.split('+');
+  value = parseFloat(value.replaceAll('.','').replace(',', '.').replace('%',''));
   
-  return {attr, type, value}
+  return {attr: stat.replace('ala','a la').trim(), type, value}
 }
 
 function processTextData(text) {
   let aleatorias = text.split('aleatorias')[1]?.split("\n") || [];
   if (aleatorias.length == 0) return false;
   aleatorias = aleatorias.map(stat => {
-    let [_, ...st] = stat.split(" ");
+    if(/^([ACDR]|PS)/i.test(stat)) return stat;
+    let [, ...st] = stat.split(" ");
     return st.join(" ");
   }).filter(e => e && e != "");
   aleatorias.splice(4);
   aleatorias = aleatorias.map(processStat);
   
   Alpine.store('equipo').equipo.push({
-    pieza: aleatorias.join("\n")
+    pieza: aleatorias.map(s=>s.attr).join(", ")
   });
 }
 
@@ -61,10 +55,11 @@ function fileToImage(file) {
 }
 
 
-const fileInput = document.getElementById("inputOpen")
+const fileInput = document.getElementById("inputOpen");
 fileInput.onchange = processImages;
 
 async function processImages(ev) {
+  const tworker = await Tesseract.createWorker('spa');
   const files = fileInput.files;
   const canvas = document.createElement("canvas"),
     ctx = canvas.getContext("2d");
@@ -80,17 +75,11 @@ async function processImages(ev) {
     let { data: { text } } = (await tworker.recognize(canvas));
     processTextData(text);
   }
+  await tworker.terminate();
 }
 
   
 
 window.onload = () => {
   Alpine.start();
-  Tesseract.createWorker('spa')
-    .then((tw) => {
-      tworker = tw;
-      fileInput.disabled = false;
-      console.log("Ready");
-    });
 };
-window.onbeforeunload = async () => { if (tworker) await tworker.terminate() }
