@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+</head>
+
+<body>
+  <aside>
+    <label id="btnOpen" class="button button--primary">
+      Open File
+      <input id="inputOpen" name="inputOpen" type="file" accepts="image/png,image/jpg,image/jpeg" multiple class="hidden" disabled />
+    </label>
+  </aside>
+  <main>
+    <table x-data>
+      <thead>
+        <tr>
+          <th>Pieza</th>
+        </tr>
+      </thead>
+      <template x-for="pieza in $store.equipo.equipo">
+        <tbody>
+          <tr>
+            <td x-text="pieza.pieza"></td>
+          </tr>
+        </tbody>
+      </template>
+    </table>
+  </main>
+  
+  <script src="./src/main.js" type="module" defer></script>
+</body>
+
+</html>
