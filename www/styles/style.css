@@ -1,0 +1,15 @@
+.main {
+  max-width: 100vw;
+  position: relative;
+  overflow: scroll;
+}
+
+.hidden {
+  display:none;
+}
+
+.button {
+  border: 1px solid gray;
+  display: inline;
+  
+}
