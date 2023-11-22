@@ -76,6 +76,7 @@ pasteInput.onpaste = ev => {
   processImages();
 }
 
+const table = document.getElementById("table");
 async function processImages() {
   const tworker = await Tesseract.createWorker('spa');
   const files = fileInput.files;
@@ -90,9 +91,12 @@ async function processImages() {
     canvas.width = img.width; // set canvas size big enough for the image
     canvas.height = img.height;
     ctx.drawImage(img, 0, 0); // draw the image
+    console.log("recognizing image", file.name)
 
     let { data: { text } } = (await tworker.recognize(canvas));
     processTextData(text);
+    console.log("processed inage", file.name)
+    table.getElementsByTagName('tbody')[0]?.lastElementChild?.scrollIntoView();
   }
   await tworker.terminate();
 }

@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <div id="main__layout">
   <aside>
     <label id="btnOpen" class="button button--primary">
       Subir imagen
@@ -19,7 +20,7 @@
     </label>
   </aside>
   <main class="main">
-    <table x-data>
+    <table x-data id="table">
       <thead>
         <tr>
           <template x-for="header in $store.equipo.headers">
@@ -27,17 +28,18 @@
           </template>
         </tr>
       </thead>
-      <template x-for="pieza in $store.equipo.equipo">
-        <tbody>
+      <tbody>
+        <template x-for="pieza in $store.equipo.equipo">
           <tr>
             <template x-for="col in pieza">
               <td x-text="col" contenteditable></td>
             </template>
           </tr>
-        </tbody>
-      </template>
+        </template>
+      </tbody>
     </table>
   </main>
+  </div>
   
   <script src="./src/main.js" type="module" defer></script>
 </body>
