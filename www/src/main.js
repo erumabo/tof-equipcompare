@@ -37,7 +37,7 @@ function processStat(stat) {
     console.error(stat, value, err);
   }
   
-  return {attr:headers.findIndex(h=>h==stat), stat, type, value}
+  return {attr:headers.findIndex(h=>h==(stat+type)), stat, type, value}
 }
 
 function processTextData(text) {
