@@ -14,70 +14,78 @@
 
 <body>
   <div id="app" class="layout--header-content">
-    
+
     <aside class="app__header">
       <menu class="menu menu--horizontal">
-        
+
         <label>
           Pegar Imagen <input id="inputOpen2" type="text" class="input--text" autocomplete="on" />
         </label>
-        
+
         <label id="btnOpen" class="button button--secondary" role="button">
           Subir imagen
           <input id="inputOpen" name="inputOpen" type="file" accepts="image/png,image/jpg,image/jpeg" multiple class="hidden" />
         </label>
-        
+
         <button id="btnExport" class="button button--secondary button--right">
           Exportar CSV
         </button>
-        
+
       </menu>
     </aside>
-    
+
     <main x-data class="main layout--header-content">
-      <table class="table">
-        
+      <table id="main-table" class="table">
+
         <thead class="table__header">
           <tr>
+            <th>Imagen</th>
             <template x-for="header in $store.equipo.headers">
               <th x-text="header" class="cell cell--header"></th>
             </template>
           </tr>
         </thead>
-        
+
         <tbody class="table__body">
           <template x-for="(pieza,j) in $store.equipo.equipo">
-            <tr>
-              <td class="cell cell--image"><img :src="pieza[0]" width="50" @click="imageModal" :data-index="j" /></td>
-              <template x-for="(col,i) in pieza">
-                <template x-if="i>0">
-                  <td class="cell cell--" x-text="pieza[i]" @input="pieza[i]=$event.target.innerText" contenteditable></td>
-                </template>
+            <tr :class="pieza.class">
+              <td class="cell cell--image"><img :src="pieza.img" width="50" @click="imageModal" :data-index="j" /></td>
+              <template x-for="(col,i) in pieza.attrs">
+                <td class="cell cell--" x-text="col" @input="pieza.attrs[i]=$event.target.innerText" contenteditable></td>
               </template>
             </tr>
           </template>
         </tbody>
-        
+
       </table>
     </main>
-    
+
   </div>
 
   <dialog id="imageDialog" x-data>
-    <form method="dialog">
-      <img :src="$store.equipo.p && $store.equipo.equipo[$store.equipo.p][0]" height="200">
-      <table id="table">
-        <tbody>
-          <template x-for="(col,i) in $store.equipo.equipo[$store.equipo.p]">
-            <template x-if="i>0">
-              <tr>
-                <th x-text="$store.equipo.headers[i]"></th>
-                <td x-text="col" @input="$store.equipo.equipo[$store.equipo.p][i]=$event.target.innerText" contenteditable></td>
-              </tr>
-            </template>
-          </template>
-        </tbody>
-      </table>
+    <form method="dialog" class="container">
+      <template x-if="$store.equipo.p >= 0">
+        <div class="dialog--content row">
+
+          <div class="img column">
+            <img :src="$store.equipo.p && $store.equipo.equipo[$store.equipo.p].img" height="250">
+          </div>
+
+          <div class="column">
+            <table id="table">
+              <tbody>
+                <template x-for="(col,i) in $store.equipo.equipo[$store.equipo.p].attrs">
+                  <tr>
+                    <th x-text="$store.equipo.headers[i]"></th>
+                    <td x-text="col" @input="$store.equipo.equipo[$store.equipo.p].attrs[i]=$event.target.innerText" contenteditable></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </template>
       <button autofocus>Close</button>
     </form>
   </dialog>

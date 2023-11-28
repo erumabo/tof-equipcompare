@@ -35,6 +35,7 @@ function processStat(stat) {
   }
   catch(err) {
     console.error(stat, value, err);
+    return undefined;
   }
   
   return {attr:headers.findIndex(h=>h==(stat+type)), stat, type, value}
@@ -52,7 +53,9 @@ function processTextData(text) {
   return aleatorias
     .map(processStat)
     .reduce((row,s) => {
-      if(s.attr>0) row[s.attr] = s.value + (s.type!='+'?'%':0);
+      if(s && s.attr>0)
+        row[s.attr] = s.value + (s.type!='+'?'%':0);
+      if(s===undefined) row[0] = "error-row"
       return row;
     }, new Array(headers.length).fill(0));
 }
@@ -82,7 +85,7 @@ pasteInput.onpaste = ev => {
   processImages();
 }
 
-const table = document.getElementById("table").getElementsByTagName('tbody')[0];
+//const table = document.getElementById("main-table").getElementsByTagName('tbody')[0];
 async function processImages() {
   const tworker = await Tesseract.createWorker('spa');
   const files = fileInput.files;
@@ -106,12 +109,17 @@ async function processImages() {
     canvas.width = (canvas.height = 250) * img.width / img.height;
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     if(stats) {
-      stats[0] = canvas.toDataURL("image/jpeg");
-      Alpine.store('equipo').equipo.push(stats);
+      let c = stats[0];
+      stats[0] = "Pieza " + Alpine.store('equipo').equipo.length
+      Alpine.store('equipo').equipo.push({
+        attrs: stats,
+        img: canvas.toDataURL("image/jpeg"),
+        "class": c
+      });
     }
     //console.log("processed inage", file.name)
 
-    table.lastElementChild?.scrollIntoView(true);
+    //table.lastElementChild?.scrollIntoView(true);
   }
   await tworker.terminate();
 }

@@ -15,12 +15,6 @@
   grid-template-columns: 1fr;
 }
 
-.layout--two-cols {
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: 1fr;
-}
-
 /* COMMON STYLES */
 
 .hidden {
@@ -44,13 +38,30 @@
   padding: 5px;
 }
 
+.dialog--content {
+  max-height: 50vh;
+  overflow:scroll;
+}
+
+.dialog--content .img {
+  background: white;
+  position: sticky;
+  top:0;
+  text-align: center;
+}
+
 .table {
   width: 100%;
+}
+
+tr.error-row {
+  background: indianred;
 }
 
 .table th {
   position: sticky;
   z-index: 10;
   top:0;
+  left:0;
   background: white;
 }
