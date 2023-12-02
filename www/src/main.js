@@ -4,8 +4,12 @@ Alpine.store('equipo', {
     equipo: [],
     headers: []
   });
+Alpine.store("loading", true);
   
-window.onload = () => {Alpine.start()};
+window.onload = () => {
+  Alpine.start()
+  Alpine.store("loading", false);
+};
 
 import Tesseract from "../libs/tesseract.esm.min.js";
 let tworker;
@@ -22,6 +26,22 @@ function imageModal(ev) {
     }
 window.imageModal = imageModal;
 
+Alpine.store('sortOrder', new Array(headers.length).fill(0));
+function sortByCol(colIndex) {
+  let order = Alpine.store("sortOrder")[colIndex];
+  order = order == 0 ? 1: -order;
+  Alpine.store("equipo").equipo = Alpine.store("equipo").equipo
+    .toSorted((a,b) => {
+      let ap = ('' + a.attrs[colIndex]).replace('%','');
+      let bp = ('' + b.attrs[colIndex]).replace('%','');
+      if(!isNaN(ap))
+        return order * (+ap - +bp);
+      return order * ap.localeCompare(bp);
+    });
+  Alpine.store("sortOrder")[colIndex] = order;
+}
+window.sortByCol = sortByCol
+
 function processStat(stat) {
   let type, value;
   
@@ -35,9 +55,14 @@ function processStat(stat) {
   }
   catch(err) {
     console.error(stat, value, err);
+    return undefined;
   }
   
-  return {attr:headers.findIndex(h=>h==stat), stat, type, value}
+  return {
+    attr: headers.findIndex(h => h.toUpperCase() == (stat+type).toUpperCase()),
+    stat, 
+    type,
+    value}
 }
 
 function processTextData(text) {
@@ -52,7 +77,11 @@ function processTextData(text) {
   return aleatorias
     .map(processStat)
     .reduce((row,s) => {
-      if(s.attr>0) row[s.attr] = s.value + (s.type!='+'?'%':0);
+      if(s && s.attr>0) row[s.attr] = s.value + (s.type!='+'?'%':0);
+      else {
+        row[0] = "error-row"
+        console.log(s?.stat);
+      }
       return row;
     }, new Array(headers.length).fill(0));
 }
@@ -82,8 +111,10 @@ pasteInput.onpaste = ev => {
   processImages();
 }
 
-const table = document.getElementById("table").getElementsByTagName('tbody')[0];
+const table = document.getElementById("main-table").getElementsByTagName('tbody')[0];
 async function processImages() {
+  Alpine.store("loading", true);
+
   const tworker = await Tesseract.createWorker('spa');
   const files = fileInput.files;
   const canvas = document.createElement("canvas"),
@@ -106,13 +137,21 @@ async function processImages() {
     canvas.width = (canvas.height = 250) * img.width / img.height;
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     if(stats) {
-      stats[0] = canvas.toDataURL("image/jpeg");
-      Alpine.store('equipo').equipo.push(stats);
+      let c = stats[0];
+      stats[0] = "Pieza " + Alpine.store('equipo').equipo.length
+      Alpine.store('equipo').equipo.push({
+        attrs: stats,
+        img: canvas.toDataURL("image/jpeg"),
+        error: c
+      });
     }
     //console.log("processed inage", file.name)
 
-    table.lastElementChild?.scrollIntoView(true);
   }
+  Alpine.nextTick(()=> {
+    table.lastElementChild?.scrollIntoView(true);
+    Alpine.store("loading", false);
+  });
   await tworker.terminate();
 }
 
@@ -120,7 +159,7 @@ async function processImages() {
 document.getElementById("btnExport").onclick = () => {
   let csv = Alpine.store("equipo").headers.join(",") + "\n";
   csv += Alpine.store("equipo").equipo.map(e => {
-    return e.map(a=>'"'+a+'"').join(",")
+    return e.attrs.map(a=>'"'+a+'"').join(",")
   }).join("\n");
   
   const a = document.createElement("a");

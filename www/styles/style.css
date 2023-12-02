@@ -1,4 +1,4 @@
-#main__layout {
+#app {
   min-width:100vw;
   max-width:100vw;
   min-height: 100vh;
@@ -6,27 +6,116 @@
   position: absolute;
   top:0;
   left:0;
+}
+
+/* LAYOUTS */
+.layout--header-content {
   display: grid;
   grid-template-rows: auto 1fr;
   grid-template-columns: 1fr;
 }
 
-.main {
-  max-width: 100vw;
-  position: relative;
-  overflow: scroll;
-}
+/* COMMON STYLES */
 
 .hidden {
   display:none;
 }
 
-.button {
-  border: 1px solid gray;
-  display: inline;
-  
+/* COMMON COMPONENTS */
+
+
+/* COMPONENTS */
+
+.menu {
+  padding: 5px;
 }
 
-#table thead {
+.main {
+  position: relative;
+  max-width: 100%;
+  height: 100%;
+  overflow: scroll;
+  padding: 5px;
+}
+
+.dialog--content {
+  max-height: 50vh;
+  overflow:scroll;
+}
+
+.dialog--content .img {
+  background: white;
   position: sticky;
+  top:0;
+  text-align: center;
+}
+
+.table {
+  width: 100%;
+}
+
+.table tbody tr {
+  scroll-behavior: smooth;
+}
+
+.table tbody tr:nth-child(2n) {
+  background: #f0f0f0;
+}
+
+.table tbody tr.error-row {
+  background: rgba(139, 0,0, 0.25);
+}
+
+.table th {
+  position: sticky;
+  z-index: 10;
+  top:0;
+  left:0;
+  background: white;
+}
+
+.table th .two-cols {
+  display: grid; 
+  grid-template-columns: auto auto;
+  grid-template-rows: 1fr;
+  align-items: center;
+}
+
+
+.loader {
+  z-index: 100;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(25,25,25,0.25);
+}
+
+.loader > .spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(00%,-50%);
+  width: 120px;
+  height: 120px;
+}
+
+.loader > .spinner div {
+  width: 60%;
+  height: 60%;
+  position: absolute;
+  left: -30%;
+  border-radius: 50%;
+  animation: 3s linear infinite normal rotate;
+  border: 5px solid steelblue;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

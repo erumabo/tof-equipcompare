@@ -4,64 +4,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+
   <link rel="stylesheet" href="./styles/style.css">
   <title></title>
 </head>
 
 <body>
-  <div id="main__layout">
-    <aside>
-      <menu>
-        <label id="btnOpen" class="button button--primary">
+  <div id="app" class="layout--header-content">
+
+    <aside class="app__header">
+      <menu class="menu menu--horizontal">
+
+        <label>
+          Pegar Imagen <input id="inputOpen2" type="text" class="input--text" autocomplete="on" />
+        </label>
+
+        <label id="btnOpen" class="button button--secondary" role="button">
           Subir imagen
           <input id="inputOpen" name="inputOpen" type="file" accepts="image/png,image/jpg,image/jpeg" multiple class="hidden" />
         </label>
-        <label>
-          O pegarla acá >> <input id="inputOpen2" type="text" style="width:50px;" /> <<
-        </label>
-        <button id="btnExport">Exportar CSV</button>
+
+        <button id="btnExport" class="button button--secondary button--right">
+          Exportar CSV
+        </button>
+
       </menu>
     </aside>
-    <main x-data class="main">
-      <table id="table">
-        <thead>
+
+    <main x-data class="main layout--header-content">
+      <table id="main-table" class="table">
+
+        <thead class="table__header">
           <tr>
-            <template x-for="header in $store.equipo.headers">
-              <th x-text="header"></th>
+            <th></th>
+            <th>Imagen</th>
+            <template x-for="(header,h) in $store.equipo.headers">
+              <th @click="sortByCol(h)">
+                <span class="two-cols">
+                  <span x-text="header"></span>
+                  <span class="material-icons" x-text="(['expand_more', 'unfold_more', 'expand_less'])[$store.sortOrder[h] + 1]"></span>
+                </span>
+              </th>
             </template>
           </tr>
         </thead>
-        <tbody>
+
+        <tbody class="table__body">
           <template x-for="(pieza,j) in $store.equipo.equipo">
-            <tr>
-              <td><img :src="pieza[0]" width="50" @click="imageModal" :data-index="j" /></td>
-              <template x-for="(col,i) in pieza">
-                <template x-if="i>0">
-                  <td x-text="pieza[i]" @input="pieza[i]=$event.target.innerText" contenteditable></td>
-                </template>
+            <tr :class="pieza.error">
+              <td>
+                <button @click="$store.equipo.equipo.splice(j,1)" class="button button-clear">
+                  <span class="material-icons">
+                    delete_forever
+                  </span>
+                </button>
+                <button @click="pieza.error = null" x-show="pieza.error" class="button button-clear">
+                  <span class="material-icons">
+                    fact_check
+                  </span>
+                </button>
+              </td>
+              <td class="cell cell--image"><img :src="pieza.img" width="50" @click="imageModal" :data-index="j" /></td>
+              <template x-for="(col,i) in pieza.attrs">
+                <td class="cell" x-text="col" @input="pieza.attrs[i]=$event.target.innerText" contenteditable></td>
               </template>
             </tr>
           </template>
         </tbody>
+
       </table>
     </main>
+
+  </div>
+  
+  <div class="loader" x-data x-show="$store.loading">
+    <div class="spinner">
+      <div><div><div><div></div></div></div></div>
+    </div>
   </div>
 
   <dialog id="imageDialog" x-data>
-    <form method="dialog">
-      <img :src="$store.equipo.p && $store.equipo.equipo[$store.equipo.p][0]" height="200">
-      <table id="table">
-        <tbody>
-          <template x-for="(col,i) in $store.equipo.equipo[$store.equipo.p]">
-            <template x-if="i>0">
-              <tr> 
-                <th x-text="$store.equipo.headers[i]"></th>
-                <td x-text="col" @input="$store.equipo.equipo[$store.equipo.p][i]=$event.target.innerText" contenteditable></td>
-              </tr>
-            </template>
-          </template>
-        </tbody>
-      </table>
+    <form method="dialog" class="container">
+      <template x-if="$store.equipo.p >= 0">
+        <div class="dialog--content row">
+
+          <div class="img column">
+            <img :src="$store.equipo.p && $store.equipo.equipo[$store.equipo.p].img" height="250">
+          </div>
+
+          <div class="column">
+            <table id="table">
+              <tbody>
+                <template x-for="(col,i) in $store.equipo.equipo[$store.equipo.p].attrs">
+                  <tr>
+                    <th x-text="$store.equipo.headers[i]"></th>
+                    <td x-text="col" @input="$store.equipo.equipo[$store.equipo.p].attrs[i]=$event.target.innerText" contenteditable></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </template>
       <button autofocus>Close</button>
     </form>
   </dialog>
