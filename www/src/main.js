@@ -159,7 +159,7 @@ async function processImages() {
 document.getElementById("btnExport").onclick = () => {
   let csv = Alpine.store("equipo").headers.join(",") + "\n";
   csv += Alpine.store("equipo").equipo.map(e => {
-    return e.map(a=>'"'+a+'"').join(",")
+    return e.attrs.map(a=>'"'+a+'"').join(",")
   }).join("\n");
   
   const a = document.createElement("a");
