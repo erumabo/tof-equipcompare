@@ -54,8 +54,16 @@
   width: 100%;
 }
 
-tr.error-row {
-  background: indianred;
+.table tbody tr {
+  scroll-behavior: smooth;
+}
+
+.table tbody tr:nth-child(2n) {
+  background: #f0f0f0;
+}
+
+.table tbody tr.error-row {
+  background: rgba(139, 0,0, 0.25);
 }
 
 .table th {
@@ -64,4 +72,50 @@ tr.error-row {
   top:0;
   left:0;
   background: white;
+}
+
+.table th .two-cols {
+  display: grid; 
+  grid-template-columns: auto auto;
+  grid-template-rows: 1fr;
+  align-items: center;
+}
+
+
+.loader {
+  z-index: 100;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(25,25,25,0.25);
+}
+
+.loader > .spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(00%,-50%);
+  width: 120px;
+  height: 120px;
+}
+
+.loader > .spinner div {
+  width: 60%;
+  height: 60%;
+  position: absolute;
+  left: -30%;
+  border-radius: 50%;
+  animation: 3s linear infinite normal rotate;
+  border: 5px solid steelblue;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

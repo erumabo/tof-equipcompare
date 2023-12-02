@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
@@ -39,19 +40,37 @@
 
         <thead class="table__header">
           <tr>
+            <th></th>
             <th>Imagen</th>
-            <template x-for="header in $store.equipo.headers">
-              <th x-text="header" class="cell cell--header"></th>
+            <template x-for="(header,h) in $store.equipo.headers">
+              <th @click="sortByCol(h)">
+                <span class="two-cols">
+                  <span x-text="header"></span>
+                  <span class="material-icons" x-text="(['expand_more', 'unfold_more', 'expand_less'])[$store.sortOrder[h] + 1]"></span>
+                </span>
+              </th>
             </template>
           </tr>
         </thead>
 
         <tbody class="table__body">
           <template x-for="(pieza,j) in $store.equipo.equipo">
-            <tr :class="pieza.class">
+            <tr :class="pieza.error">
+              <td>
+                <button @click="$store.equipo.equipo.splice(j,1)" class="button button-clear">
+                  <span class="material-icons">
+                    delete_forever
+                  </span>
+                </button>
+                <button @click="pieza.error = null" x-show="pieza.error" class="button button-clear">
+                  <span class="material-icons">
+                    fact_check
+                  </span>
+                </button>
+              </td>
               <td class="cell cell--image"><img :src="pieza.img" width="50" @click="imageModal" :data-index="j" /></td>
               <template x-for="(col,i) in pieza.attrs">
-                <td class="cell cell--" x-text="col" @input="pieza.attrs[i]=$event.target.innerText" contenteditable></td>
+                <td class="cell" x-text="col" @input="pieza.attrs[i]=$event.target.innerText" contenteditable></td>
               </template>
             </tr>
           </template>
@@ -60,6 +79,12 @@
       </table>
     </main>
 
+  </div>
+  
+  <div class="loader" x-data x-show="$store.loading">
+    <div class="spinner">
+      <div><div><div><div></div></div></div></div>
+    </div>
   </div>
 
   <dialog id="imageDialog" x-data>
